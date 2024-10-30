@@ -22,24 +22,32 @@ const client = new MongoClient(uri, {
   }
 });
 
+const spotCollection = client.db('touristSpots').collection('AllSpots')
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    app.post('/spot', async (req, res) => {
+      const spot = req.body;
+      const result = await spotCollection.insertOne(spot)
+      res.send(result)
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
-   
+
   }
 }
 run().catch(console.dir);
 
 
 app.get("/", (req, res) => {
-    res.send("tourism-management server running")
+  res.send("tourism-management server running")
 })
 
 app.listen(port, () => {
-    console.log(`tourism-management server running on port: ${port}`)
+  console.log(`tourism-management server running on port: ${port}`)
 })
