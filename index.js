@@ -17,7 +17,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
-    strict: true,
+    // strict: true,
     deprecationErrors: true,
   }
 });
@@ -35,13 +35,20 @@ async function run() {
     })
 
     app.get('/spots', async (req, res) => {
+      const home = req.query.home;
+      const country = req.query.country;
+      console.log(home)
       let result;
       if (req.query.home == 'true') {
         result = await spotCollection.find().limit(6).toArray()
 
       }
       else {
-        result = await spotCollection.find().toArray()
+        let query = {}
+        if (country != "null") {
+          query = { countryName: country }
+        }
+        result = await spotCollection.find(query).toArray()
 
       }
       res.send(result)
@@ -73,7 +80,24 @@ async function run() {
 
     })
 
-    
+    app.delete("/spot/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await spotCollection.deleteOne({ _id: new ObjectId(id) })
+      res.send(result)
+    })
+
+    app.get("/countries", async (req, res) => {
+      const countries = []
+      const countrNameList = await spotCollection.distinct("countryName")
+      const allSpots = await spotCollection.find().toArray()
+      countrNameList.map(list => {
+        const findCountry = allSpots.find(spot => spot.countryName == list)
+        countries.push(findCountry)
+      })
+      res.send(countries)
+    })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
