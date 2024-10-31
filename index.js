@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require("dotenv").config()
 const app = express()
 const port = process.env.PORT || 5000;
@@ -46,6 +46,34 @@ async function run() {
       }
       res.send(result)
     })
+
+    app.get('/spot/details/:id', async (req, res) => {
+      const id = req.params.id;
+      const result = await spotCollection.findOne({ _id: new ObjectId(id) })
+      res.send(result)
+    })
+
+    app.get('/spots/my/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email }
+      const result = await spotCollection.find(query).toArray()
+      console.log(email)
+      res.send(result)
+    })
+
+    app.patch('/spot/:id', async (req, res) => {
+      const id = req.params.id;
+      const updateSpot = req.body;
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: updateSpot
+      }
+      const result = await spotCollection.updateOne(filter, updateDoc)
+      res.send(result)
+
+    })
+
+    
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
