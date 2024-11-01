@@ -37,7 +37,6 @@ async function run() {
     app.get('/spots', async (req, res) => {
       const home = req.query.home;
       const country = req.query.country;
-      console.log(home)
       let result;
       if (req.query.home == 'true') {
         result = await spotCollection.find().limit(6).toArray()
@@ -64,7 +63,6 @@ async function run() {
       const email = req.params.email;
       const query = { email: email }
       const result = await spotCollection.find(query).toArray()
-      console.log(email)
       res.send(result)
     })
 
